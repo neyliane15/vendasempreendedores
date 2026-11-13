@@ -88,7 +88,7 @@ No GitHub: **Settings → General → Default branch** → troque para `main` �
 
 ## 4. Criar as tabelas do banco
 
-São 4 tabelas: `negocios`, `insumos`, `produtos` e `vendas`. Todas têm segurança por usuário
+São 5 tabelas: `negocios`, `insumos`, `produtos`, `vendas` e `compras`. Todas têm segurança por usuário
 (Row Level Security): cada pessoa só vê e altera os próprios dados.
 
 ### Opção A — pelo painel (mais fácil)
@@ -107,9 +107,12 @@ npx supabase db push
 
 O `login` abre o navegador para autorizar. O `link` pede a senha do banco do passo 3.
 
+Depois rode também o segundo arquivo, **`supabase/migrations/20261114000000_compras.sql`**, do mesmo jeito
+(**New query** → colar → **Run**). Ele cria a tabela `compras`, onde ficam as notas com data e valores.
+
 ### Conferir
 
-Em **Table Editor** devem aparecer as 4 tabelas, cada uma com o selo **RLS enabled**.
+Em **Table Editor** devem aparecer as 5 tabelas (`negocios`, `insumos`, `produtos`, `vendas`, `compras`), cada uma com o selo **RLS enabled**.
 
 ---
 

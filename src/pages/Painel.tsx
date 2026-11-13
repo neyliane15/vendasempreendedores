@@ -16,6 +16,7 @@ export default function Painel(d: Dados) {
     const inicio =
       periodo === 'hoje' ? h : periodo === '7d' ? diaISO(new Date(Date.now() - 6 * 864e5)) : h.slice(0, 8) + '01'
     const vendas = d.vendas.filter((v) => v.data >= inicio && v.data <= h)
+    const gastos = d.compras.filter((c) => c.data >= inicio && c.data <= h).reduce((s, c) => s + Number(c.total), 0)
     const fat = vendas.reduce((s, v) => s + v.preco_unit * v.quantidade, 0)
     const custo = vendas.reduce((s, v) => s + v.custo_unit * v.quantidade, 0)
     const porProduto = new Map<string, { nome: string; qtd: number; fat: number; lucro: number }>()
@@ -31,16 +32,16 @@ export default function Painel(d: Dados) {
       const iso = diaISO(dt)
       const vs = d.vendas.filter((v) => v.data === iso)
       const f = vs.reduce((s, v) => s + v.preco_unit * v.quantidade, 0)
-      const l = vs.reduce((s, v) => s + (v.preco_unit - v.custo_unit) * v.quantidade, 0)
-      return { rotulo: dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''), f, l }
+      const g = d.compras.filter((c) => c.data === iso).reduce((s, c) => s + Number(c.total), 0)
+      return { rotulo: dt.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''), f, g }
     })
     return {
-      fat, custo, lucro: fat - custo, margem: fat > 0 ? (fat - custo) / fat : 0, qtd: vendas.reduce((s, v) => s + v.quantidade, 0),
+      fat, custo, gastos, caixa: fat - gastos, lucro: fat - custo, margem: fat > 0 ? (fat - custo) / fat : 0, qtd: vendas.reduce((s, v) => s + v.quantidade, 0),
       ranking: [...porProduto.values()].sort((a, b) => b.fat - a.fat).slice(0, 5), dias,
     }
-  }, [d.vendas, periodo])
+  }, [d.vendas, d.compras, periodo])
 
-  const max = Math.max(1, ...r.dias.map((x) => x.f))
+  const max = Math.max(1, ...r.dias.map((x) => Math.max(x.f, x.g)))
   const saudacao = new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'
 
   return (
@@ -57,18 +58,22 @@ export default function Painel(d: Dados) {
       </div>
 
       <div className="kpis">
-        <div className="cartao tomate kpi"><span className="ic">💰</span><small>Faturamento</small><strong>{brl(r.fat)}</strong></div>
-        <div className="cartao kpi"><span className="ic">🧾</span><small>Custos</small><strong>{brl(r.custo)}</strong></div>
-        <div className="cartao verde kpi"><span className="ic">🤑</span><small>Lucro</small><strong>{brl(r.lucro)}</strong></div>
+        <div className="cartao tomate kpi"><span className="ic">💰</span><small>Vendas</small><strong>{brl(r.fat)}</strong></div>
+        <div className="cartao kpi"><span className="ic">🧾</span><small>Compras</small><strong>{brl(r.gastos)}</strong></div>
+        <div className={'cartao kpi ' + (r.caixa >= 0 ? 'verde' : 'negativo')}>
+          <span className="ic">{r.caixa >= 0 ? '🤑' : '⚠️'}</span><small>Sobrou no caixa</small>
+          <strong style={{ color: r.caixa < 0 ? 'var(--tomate-esc)' : undefined }}>{brl(r.caixa)}</strong>
+        </div>
         <div className="cartao mostarda kpi"><span className="ic">🛍️</span><small>Itens vendidos</small><strong>{r.qtd}</strong></div>
       </div>
+      <p className="sub" style={{ marginTop: -8 }}>“Sobrou no caixa” = vendas − compras do período.</p>
 
       <div className="cartao pilha">
-        <h2>🎯 Sua margem de lucro: {pct(r.margem)}</h2>
+        <h2>🎯 Margem de lucro dos produtos: {pct(r.margem)}</h2>
         <div className="medidor"><div style={{ width: `${Math.min(100, Math.max(0, r.margem * 100))}%` }} /></div>
         <p className="sub" style={{ marginTop: 0 }}>
           {r.fat > 0
-            ? <>De cada <b>R$ 10,00</b> que você vende, <b>{brl(r.margem * 10)}</b> ficam de lucro para você.</>
+            ? <>De cada <b>R$ 10,00</b> que você vende, <b>{brl(r.margem * 10)}</b> ficam de lucro (custo dos produtos vendidos: {brl(r.custo)}; lucro: {brl(r.lucro)}).</>
             : 'Registre suas vendas para ver aqui quanto sobra de verdade.'}
         </p>
       </div>
@@ -78,16 +83,17 @@ export default function Painel(d: Dados) {
         <div className="barras">
           {r.dias.map((x, i) => (
             <div className="barra" key={i}>
-              <div className="col" style={{ height: `${(x.f / max) * 100}%` }} title={brl(x.f)}>
-                <div className="lucro" style={{ height: x.f > 0 ? `${Math.max(0, (x.l / x.f) * 100)}%` : 0 }} />
+              <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: '100%', width: '100%', justifyContent: 'center' }}>
+                <div className="col" style={{ height: `${(x.f / max) * 100}%` }} title={'Vendas ' + brl(x.f)} />
+                <div className="col" style={{ height: `${(x.g / max) * 100}%`, background: 'var(--tomate)' }} title={'Compras ' + brl(x.g)} />
               </div>
               <span>{x.rotulo}</span>
             </div>
           ))}
         </div>
         <div className="legenda">
-          <span><i style={{ background: 'var(--mostarda)' }} />Faturamento</span>
-          <span><i style={{ background: 'var(--manjericao)' }} />Lucro</span>
+          <span><i style={{ background: 'var(--mostarda)' }} />Vendas</span>
+          <span><i style={{ background: 'var(--tomate)' }} />Compras</span>
         </div>
       </div>
 

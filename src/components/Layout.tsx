@@ -19,7 +19,7 @@ export function Topo({ nome }: { nome: string }) {
 const ITENS: { id: Aba; rotulo: string; ico: string }[] = [
   { id: 'painel', rotulo: 'Início', ico: '📊' },
   { id: 'produtos', rotulo: 'Produtos', ico: '🍰' },
-  { id: 'escanear', rotulo: 'Ler nota', ico: '📸' },
+  { id: 'escanear', rotulo: 'Compras', ico: '📸' },
   { id: 'vendas', rotulo: 'Vendas', ico: '🛒' },
   { id: 'ajustes', rotulo: 'Ajustes', ico: '⚙️' },
 ]

@@ -85,6 +85,7 @@ main > *, .pilha > * { min-width: 0; }
 .cartao h2 { font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .cartao.mostarda { background: var(--mostarda-cl); }
 .cartao.verde { background: var(--manjericao-cl); }
+.cartao.negativo { background: #fde2e4; }
 .cartao.tomate { background: var(--tomate); color: #fff; }
 .cartao.tomate::before { border-color: rgba(255,255,255,.35); }
 
@@ -195,7 +196,7 @@ label.campo { display: grid; gap: 7px; font-size: 12.5px; font-weight: 600; }
 
 .barras { display: flex; align-items: flex-end; gap: 6px; height: 140px; padding-top: 10px; }
 .barra { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
-.barra .col { width: 100%; max-width: 34px; border-radius: 8px 8px 3px 3px; background: var(--mostarda); border: 2px solid var(--chocolate); min-height: 4px; position: relative; overflow: hidden; }
+.barra .col { width: 100%; max-width: 16px; border-radius: 8px 8px 3px 3px; background: var(--mostarda); border: 2px solid var(--chocolate); min-height: 4px; position: relative; overflow: hidden; }
 .barra .col .lucro { position: absolute; left: 0; right: 0; bottom: 0; background: var(--manjericao); }
 .barra span { font-size: 11px; color: var(--suave); font-weight: 600; }
 .legenda { display: flex; gap: 14px; font-size: 12px; color: var(--suave); margin-top: 10px; }

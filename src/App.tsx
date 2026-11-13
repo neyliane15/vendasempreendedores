@@ -3,12 +3,12 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase, erroConfig } from './lib/supabase'
 import { TelaAviso, Carregando } from './components/Aviso'
 import { db, obterNegocio } from './lib/db'
-import type { Insumo, Negocio, Produto, Venda } from './lib/types'
+import type { Compra, Insumo, Negocio, Produto, Venda } from './lib/types'
 import Login from './pages/Login'
 import BoasVindas from './pages/BoasVindas'
 import Painel from './pages/Painel'
 import Produtos from './pages/Produtos'
-import Escanear from './pages/Escanear'
+import Compras from './pages/Compras'
 import Vendas from './pages/Vendas'
 import Ajustes from './pages/Ajustes'
 import { Topo, Nav, Toast, type Aba } from './components/Layout'
@@ -18,6 +18,7 @@ export interface Dados {
   produtos: Produto[]
   insumos: Insumo[]
   vendas: Venda[]
+  compras: Compra[]
   recarregar: () => Promise<void>
   avisar: (msg: string) => void
   irPara: (a: Aba) => void
@@ -31,6 +32,7 @@ export default function App() {
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [insumos, setInsumos] = useState<Insumo[]>([])
   const [vendas, setVendas] = useState<Venda[]>([])
+  const [compras, setCompras] = useState<Compra[]>([])
   const [aba, setAba] = useState<Aba>('painel')
   const [toast, setToast] = useState('')
   const [erroCarga, setErroCarga] = useState('')
@@ -53,10 +55,16 @@ export default function App() {
   const logado = !supabase || !!sessao
 
   const recarregar = useCallback(async () => {
-    const [p, i, v] = await Promise.all([db.produtos.listar(), db.insumos.listar(), db.vendas.listar()])
+    const [p, i, v, c] = await Promise.all([
+      db.produtos.listar(),
+      db.insumos.listar(),
+      db.vendas.listar(),
+      db.compras.listar().catch(() => [] as Compra[]),
+    ])
     setProdutos(p)
     setInsumos(i)
     setVendas(v)
+    setCompras(c)
   }, [])
 
   useEffect(() => {
@@ -79,7 +87,7 @@ export default function App() {
   if (negocio === undefined) return <Carregando />
   if (negocio === null) return <BoasVindas aoSalvar={setNegocio} />
 
-  const dados: Dados = { negocio, produtos, insumos, vendas, recarregar, avisar, irPara: setAba, setNegocio }
+  const dados: Dados = { negocio, produtos, insumos, vendas, compras, recarregar, avisar, irPara: setAba, setNegocio }
 
   return (
     <>
@@ -87,7 +95,7 @@ export default function App() {
       <main>
         {aba === 'painel' && <Painel {...dados} />}
         {aba === 'produtos' && <Produtos {...dados} />}
-        {aba === 'escanear' && <Escanear {...dados} />}
+        {aba === 'escanear' && <Compras {...dados} />}
         {aba === 'vendas' && <Vendas {...dados} />}
         {aba === 'ajustes' && <Ajustes {...dados} />}
       </main>

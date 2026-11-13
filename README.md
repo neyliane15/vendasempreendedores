@@ -7,7 +7,8 @@ Mini aplicativo (PWA, 100% para celular) para quem está começando a vender com
 - **Markup**: 2× Econômico · 2,5× Padrão (recomendado) · 3× Caseiro gourmet · 3,5× Encomenda especial, ou qualquer valor de 1,2× a 5×.
 - **Preço sugerido** do produto **inteiro** e **por porção** (fatia, unidade, pedaço, pote…), com lucro e margem.
 - **Ler nota** (grátis, no próprio celular): foto do cupom fiscal, recibo ou papel escrito → lista de ingredientes e preços para conferir e salvar. Opcional: leitura com IA paga (`VITE_LEITURA_IA=true`), que entende melhor letra de mão.
-- **Vendas** e **Painel**: faturamento, custos, lucro, margem ("de cada R$ 10 vendidos, R$ X ficam pra você"), gráfico de 7 dias e mais vendidos.
+- **Compras**: cada nota fica registrada com data, local, itens e valores; histórico por dia e total do mês.
+- **Vendas** e **Painel**: vendas, compras, quanto sobrou no caixa (vendas − compras), faturamento, custos, lucro, margem ("de cada R$ 10 vendidos, R$ X ficam pra você"), gráfico de 7 dias e mais vendidos.
 
 Telas: [`docs/telas`](docs/telas).
 

@@ -58,3 +58,13 @@ export interface ItemCupom {
   unidade: Unidade
   preco: number
 }
+
+/** Uma compra (nota, recibo ou lançamento manual) com seus itens. */
+export interface Compra {
+  id: string
+  data: string // YYYY-MM-DD
+  local: string
+  total: number
+  itens: ItemCupom[]
+  created_at?: string
+}

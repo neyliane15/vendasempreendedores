@@ -9,7 +9,8 @@
     "prebuild": "node scripts/copiar-tesseract.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test tests/parser.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

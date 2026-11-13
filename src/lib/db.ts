@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
-import type { Insumo, Negocio, Produto, Venda } from './types'
+import type { Compra, Insumo, ItemCupom, Negocio, Produto, Venda } from './types'
 
-type Tabela = 'insumos' | 'produtos' | 'vendas'
+type Tabela = 'insumos' | 'produtos' | 'vendas' | 'compras'
 
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()))
 
@@ -104,12 +104,28 @@ export const db = {
     listar: () => listar<Insumo>('insumos'),
     salvar: (i: Omit<Insumo, 'id'> & { id?: string }) => salvar<Insumo>('insumos', i),
     salvarVarios: (i: Omit<Insumo, 'id'>[]) => salvarVarios<Insumo>('insumos', i),
+    /** Atualiza o preço dos ingredientes já cadastrados (mesmo nome) e cadastra os novos. */
+    atualizarPrecos: async (itens: ItemCupom[], existentes: Insumo[]) => {
+      const novos: Omit<Insumo, 'id'>[] = []
+      for (const it of itens) {
+        const atual = existentes.find((e) => e.nome.trim().toLowerCase() === it.nome.trim().toLowerCase())
+        const dados = { nome: it.nome, preco: it.preco, quantidade: it.quantidade, unidade: it.unidade }
+        if (atual) await salvar<Insumo>('insumos', { ...dados, id: atual.id })
+        else novos.push(dados)
+      }
+      if (novos.length) await salvarVarios<Insumo>('insumos', novos)
+    },
     remover: (id: string) => remover('insumos', id),
   },
   produtos: {
     listar: () => listar<Produto>('produtos'),
     salvar: (p: Omit<Produto, 'id'> & { id?: string }) => salvar<Produto>('produtos', p),
     remover: (id: string) => remover('produtos', id),
+  },
+  compras: {
+    listar: () => listar<Compra>('compras', 'data'),
+    salvar: (c: Omit<Compra, 'id'> & { id?: string }) => salvar<Compra>('compras', c),
+    remover: (id: string) => remover('compras', id),
   },
   vendas: {
     listar: () => listar<Venda>('vendas', 'data'),
