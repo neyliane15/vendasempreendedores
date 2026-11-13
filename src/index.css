@@ -59,7 +59,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
 .topo-linha { position: relative; display: flex; align-items: center; gap: 10px; }
 .topo-logo {
   width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
-  background: var(--mostarda); border: 2px solid var(--chocolate); font-size: 22px;
+  background: var(--mostarda); border: 2px solid var(--chocolate); color: var(--chocolate);
   box-shadow: 2px 2px 0 var(--chocolate);
 }
 .topo small { display: block; font-size: 11px; opacity: .9; font-weight: 500; }
@@ -217,16 +217,23 @@ input[type='date']::-webkit-date-and-time-value { text-align: left; }
   border-top: 3px solid var(--mostarda);
 }
 .nav button {
-  background: none; border: 0; color: #d9c6b4; display: grid; justify-items: center; gap: 3px;
-  font-size: 11px; font-weight: 600; padding: 6px 0; cursor: pointer;
+  background: none; border: 0; color: #c9b39e; display: grid; justify-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .01em; padding: 4px 0 2px; cursor: pointer;
+  transition: color .15s;
 }
-.nav button .ico { font-size: 21px; filter: grayscale(.4); }
+.nav button .ico {
+  width: 44px; height: 30px; border-radius: 999px; display: grid; place-items: center;
+  transition: background .15s, color .15s;
+}
 .nav button.ativo { color: var(--mostarda); }
-.nav button.ativo .ico { filter: none; }
+.nav button.ativo .ico { background: rgba(244, 163, 0, .16); }
 .nav .central .ico {
-  width: 60px; height: 60px; margin-top: -30px; border-radius: 50%; display: grid; place-items: center; font-size: 26px;
-  background: var(--tomate); border: 3px solid var(--mostarda); box-shadow: 0 4px 0 #1e1009; filter: none;
+  width: 62px; height: 62px; margin-top: -32px; border-radius: 50%;
+  background: var(--tomate); color: #fff; border: 3px solid var(--mostarda);
+  box-shadow: 0 4px 0 #1e1009, inset 0 0 0 2px rgba(255,255,255,.18);
 }
+.nav .central.ativo .ico { background: var(--tomate); color: #fff; }
+.nav .central:active .ico { transform: translateY(2px); box-shadow: 0 2px 0 #1e1009; }
 
 /* ---------- câmera ---------- */
 .area-foto {

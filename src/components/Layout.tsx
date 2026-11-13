@@ -1,4 +1,6 @@
+import type { ComponentType } from 'react'
 import { modoDemo } from '../lib/supabase'
+import { IconeAjustes, IconeLerNota, IconeMarca, IconePainel, IconeProdutos, IconeVendas } from './Icones'
 
 export type Aba = 'painel' | 'produtos' | 'escanear' | 'vendas' | 'ajustes'
 
@@ -6,7 +8,7 @@ export function Topo({ nome }: { nome: string }) {
   return (
     <header className="topo">
       <div className="topo-linha">
-        <div className="topo-logo">🧁</div>
+        <div className="topo-logo"><IconeMarca tamanho={24} /></div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <small>Sabor &amp; Lucro{modoDemo ? ' · demonstração' : ''}</small>
           <h1 style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nome}</h1>
@@ -16,28 +18,29 @@ export function Topo({ nome }: { nome: string }) {
   )
 }
 
-const ITENS: { id: Aba; rotulo: string; ico: string }[] = [
-  { id: 'painel', rotulo: 'Início', ico: '📊' },
-  { id: 'produtos', rotulo: 'Produtos', ico: '🍰' },
-  { id: 'escanear', rotulo: 'Compras', ico: '📸' },
-  { id: 'vendas', rotulo: 'Vendas', ico: '🛒' },
-  { id: 'ajustes', rotulo: 'Ajustes', ico: '⚙️' },
+const ITENS: { id: Aba; rotulo: string; Icone: ComponentType<{ tamanho?: number }> }[] = [
+  { id: 'painel', rotulo: 'Início', Icone: IconePainel },
+  { id: 'produtos', rotulo: 'Produtos', Icone: IconeProdutos },
+  { id: 'escanear', rotulo: 'Compras', Icone: IconeLerNota },
+  { id: 'vendas', rotulo: 'Vendas', Icone: IconeVendas },
+  { id: 'ajustes', rotulo: 'Ajustes', Icone: IconeAjustes },
 ]
 
 export function Nav({ aba, setAba }: { aba: Aba; setAba: (a: Aba) => void }) {
   return (
     <nav className="nav">
-      {ITENS.map((i) => (
+      {ITENS.map(({ id, rotulo, Icone }) => (
         <button
-          key={i.id}
-          className={(aba === i.id ? 'ativo ' : '') + (i.id === 'escanear' ? 'central' : '')}
+          key={id}
+          aria-current={aba === id ? 'page' : undefined}
+          className={(aba === id ? 'ativo ' : '') + (id === 'escanear' ? 'central' : '')}
           onClick={() => {
-            setAba(i.id)
+            setAba(id)
             window.scrollTo({ top: 0 })
           }}
         >
-          <span className="ico">{i.ico}</span>
-          {i.rotulo}
+          <span className="ico"><Icone tamanho={id === 'escanear' ? 28 : 22} /></span>
+          {rotulo}
         </button>
       ))}
     </nav>
