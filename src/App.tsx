@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from './lib/supabase'
+import { supabase, erroConfig } from './lib/supabase'
+import { TelaAviso, Carregando } from './components/Aviso'
 import { db, obterNegocio } from './lib/db'
 import type { Insumo, Negocio, Produto, Venda } from './lib/types'
 import Login from './pages/Login'
@@ -32,13 +33,19 @@ export default function App() {
   const [vendas, setVendas] = useState<Venda[]>([])
   const [aba, setAba] = useState<Aba>('painel')
   const [toast, setToast] = useState('')
+  const [erroCarga, setErroCarga] = useState('')
 
   useEffect(() => {
     if (!supabase) return
-    supabase.auth.getSession().then(({ data }) => {
-      setSessao(data.session)
-      setPronto(true)
-    })
+    const limite = setTimeout(() => setErroCarga('O Supabase não respondeu. Confira se o projeto está ativo (não pausado) no painel do Supabase.'), 15000)
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        setSessao(data.session)
+        setPronto(true)
+      })
+      .catch((e) => setErroCarga('Falha ao conectar no Supabase: ' + (e as Error).message))
+      .finally(() => clearTimeout(limite))
     const { data } = supabase.auth.onAuthStateChange((_e, s) => setSessao(s))
     return () => data.subscription.unsubscribe()
   }, [])
@@ -56,7 +63,7 @@ export default function App() {
     if (!pronto || !logado) return
     obterNegocio()
       .then((n) => setNegocio(n))
-      .catch(() => setNegocio(null))
+      .catch((e) => setErroCarga('Não consegui ler seus dados: ' + (e as Error).message + '. Confira se o SQL das tabelas foi rodado no Supabase.'))
     recarregar().catch(() => undefined)
   }, [pronto, logado, recarregar])
 
@@ -65,9 +72,11 @@ export default function App() {
     setTimeout(() => setToast(''), 2600)
   }, [])
 
-  if (!pronto) return null
+  if (erroConfig) return <TelaAviso titulo="Configuração incompleta" texto={<>{erroConfig}<br /><br />Corrija em Vercel → Settings → Environment Variables e depois faça Redeploy.</>} />
+  if (erroCarga) return <TelaAviso titulo="Sem conexão" texto={erroCarga} />
+  if (!pronto) return <Carregando />
   if (!logado) return <Login />
-  if (negocio === undefined) return null
+  if (negocio === undefined) return <Carregando />
   if (negocio === null) return <BoasVindas aoSalvar={setNegocio} />
 
   const dados: Dados = { negocio, produtos, insumos, vendas, recarregar, avisar, irPara: setAba, setNegocio }
