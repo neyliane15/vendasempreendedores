@@ -108,8 +108,12 @@ label.campo { display: grid; gap: 7px; font-size: 12.5px; font-weight: 600; }
   transition: border-color .15s, box-shadow .15s;
 }
 .entrada:focus { border-color: var(--mostarda); box-shadow: 0 0 0 3px var(--mostarda-cl); }
-.grade2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grade3 { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px; }
+.grade2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.grade2 > *, .grade3 > * { min-width: 0; }
+.entrada { min-width: 0; }
+input[type='date'].entrada { -webkit-appearance: none; appearance: none; display: block; min-height: 50px; text-align: left; }
+input[type='date']::-webkit-date-and-time-value { text-align: left; }
+.grade3 { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 .pilha { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .pilha > .faixa { justify-self: start; }
 

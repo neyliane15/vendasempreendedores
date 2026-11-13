@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import type { Dados } from '../App'
 import { brl, hoje, num } from '../lib/calc'
 import { db } from '../lib/db'
-import { lerCupom, leituraIA } from '../lib/ocr'
+import { lerCupom } from '../lib/ocr'
 import type { Compra, ItemCupom, Unidade } from '../lib/types'
 import { Campo, Dinheiro } from '../components/Layout'
 
@@ -257,7 +257,7 @@ export default function Compras(d: Dados) {
           • Enquadre só a parte dos produtos e chegue perto. Nota muito comprida: tire 2 fotos (metade de cima e metade de baixo).<br />
           • Confira sempre os valores antes de salvar.
         </p>
-        {!leituraIA && <p className="sub" style={{ fontSize: 11.5 }}>A leitura é feita no próprio celular, de graça. Funciona melhor com notas impressas; em papel escrito à mão, use letra de forma e caneta escura.</p>}
+        <p className="sub" style={{ fontSize: 11.5 }}>Se a leitura vier errada, corrija os itens antes de salvar ou use “Lançar compra sem foto”.</p>
       </div>
     </>
   )

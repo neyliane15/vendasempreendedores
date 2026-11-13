@@ -3,11 +3,10 @@
 Do zero até o app instalado no celular, com todos os comandos.
 Tempo estimado: 40 a 60 minutos na primeira vez.
 
-> **Leitura de notas grátis (padrão):** a leitura é feita no próprio celular, sem custo e sem chave.
-> Funciona melhor com cupom impresso. Os passos **6, 7 e 13** são **opcionais**: só servem se um dia
-> você quiser a leitura com IA paga (que entende melhor letra de mão). Pule esses passos para ficar 100% grátis.
-
----
+> **Leitura de notas:** o app tenta primeiro a **IA** (função `ler-cupom` no Supabase) e, se ela não estiver
+> configurada, lê no próprio celular (grátis, mas só funciona bem com foto chapada e de perto).
+> Para notas reais (torta, curvada, segurada na mão, escrita à mão), configure a IA do **Google Gemini, que tem
+> plano gratuito sem cartão** — passos 6 e 7.
 
 ## 0. O que você precisa antes de começar
 
@@ -18,7 +17,7 @@ Tempo estimado: 40 a 60 minutos na primeira vez.
 | Conta no GitHub | Onde o código fica | github.com (o repositório `neyliane15/vendasempreendedores` já existe) |
 | Conta no Supabase | Banco de dados, login e função de leitura de nota | supabase.com |
 | Conta na Vercel | Colocar o site no ar | vercel.com (entre com o GitHub) |
-| Conta na Anthropic (opcional, paga) | Só para a leitura de notas com IA | console.anthropic.com |
+| Conta Google | Chave grátis da IA que lê as notas (Gemini) | aistudio.google.com |
 
 Confira se o Node e o Git estão instalados (os dois comandos devem mostrar um número de versão):
 
@@ -129,61 +128,44 @@ As URLs do site (Site URL) são configuradas no passo 10, depois que a Vercel ge
 
 ---
 
-## 6. (Opcional, pago) Gerar a chave da IA (Anthropic)
+## 6. Gerar a chave grátis da IA (Google Gemini)
 
-1. Entre em **console.anthropic.com → Settings → API Keys → Create Key**.
-2. Nome: `sabor-e-lucro-ler-cupom`. Copie a chave (`sk-ant-...`). **Ela só aparece uma vez.**
-3. Em **Settings → Billing**, adicione créditos. Sem crédito, a leitura de nota falha.
+1. Entre em **aistudio.google.com** com uma conta Google.
+2. Clique em **Get API key → Create API key** (se pedir, crie um projeto). Copie a chave (começa com `AIza...`).
+3. **Não** ative faturamento (billing): sem ele você fica no plano gratuito e nunca é cobrada.
 
-**Custo estimado:** cerca de US$ 0,02 a US$ 0,05 por foto lida, com o modelo configurado (Claude Opus 5.5).
-Veja o passo 13 para trocar por um modelo bem mais barato.
+Observações do plano gratuito do Gemini (confira as regras atuais na página de preços do Google):
+- Tem limite de leituras por minuto e por dia. Para um pequeno negócio sobra, mas se passar do limite
+  o app avisa "Limite gratuito atingido" e você tenta de novo depois.
+- No plano gratuito o Google pode usar o conteúdo enviado (as fotos das notas) para melhorar os produtos dele.
 
----
+> Alternativa paga: Claude (Anthropic). Cadastre o segredo `ANTHROPIC_API_KEY` no lugar do `GEMINI_API_KEY`.
+> Se os dois existirem, o app usa o Gemini.
 
-## 7. (Opcional, pago) Publicar a função que lê as notas com IA
+## 7. Publicar a função que lê as notas (pelo navegador, sem terminal)
 
-A função fica em `supabase/functions/ler-cupom/index.ts`. Ela recebe a foto do app, envia para a IA
-e devolve a lista de produtos (nome, quantidade, unidade e preço). A chave da IA fica guardada só no
-servidor do Supabase e nunca vai para o celular.
+1. No Supabase: **Edge Functions → Secrets** (ou **Project Settings → Edge Functions → Secrets**).
+   - **Name:** `GEMINI_API_KEY` · **Value:** a chave `AIza...` → **Save**.
+2. **Edge Functions → Deploy a new function → Via Editor**.
+   - Nome: exatamente **`ler-cupom`**.
+   - Apague o código de exemplo e cole **todo** o conteúdo de `supabase/functions/ler-cupom/index.ts` (copie pelo GitHub).
+   - Deixe a verificação de JWT **ligada** e clique em **Deploy**.
+   - Se a função já existia: abra `ler-cupom` → aba **Code** → substitua tudo pelo código novo → **Deploy**.
+3. Pronto: não precisa mexer na Vercel. O app detecta a função sozinho.
 
-Se você pulou a Opção B do passo 4, faça login e ligue o projeto primeiro:
-
-```bash
-npx supabase login
-npx supabase link --project-ref SEU_PROJECT_REF
-```
-
-Guarde a chave da IA como segredo (troque pela sua):
-
-```bash
-npx supabase secrets set ANTHROPIC_API_KEY=sk-ant-SUA-CHAVE-AQUI
-```
-
-Publique a função:
+Pelo terminal (alternativa):
 
 ```bash
+npx supabase secrets set GEMINI_API_KEY=AIza-SUA-CHAVE
 npx supabase functions deploy ler-cupom
 ```
 
-Se aparecer erro falando de Docker, use:
-
-```bash
-npx supabase functions deploy ler-cupom --use-api
-```
+Opcional: para trocar o modelo do Gemini, crie o segredo `GEMINI_MODEL` (padrão: `gemini-flash-latest`).
 
 ### Conferir
 
-```bash
-npx supabase functions list
-npx supabase secrets list
-```
-
-`ler-cupom` deve aparecer como **ACTIVE**, e `ANTHROPIC_API_KEY` deve aparecer na lista de segredos (o valor fica escondido).
-
-A função só aceita chamadas de quem está logado no app (`verify_jwt = true` em `supabase/config.toml`).
-Por isso, desconhecidos não conseguem gastar seus créditos.
-
----
+Tire foto de uma nota no app. Na tela aparece **"Lendo sua nota com inteligência artificial…"**.
+Se der erro, veja **Edge Functions → ler-cupom → Logs**.
 
 ## 8. Ligar o app ao Supabase no computador
 
@@ -223,7 +205,6 @@ Agora o app abre na tela de **Entrar**, sem a palavra "demonstração". O arquiv
 | `VITE_SUPABASE_URL` | `https://abcdefghijkl.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | sua chave pública |
 
-   - (Opcional, só se fez os passos 6 e 7) `VITE_LEITURA_IA` = `true` para ligar a leitura com IA.
 4. Clique em **Deploy**. Em cerca de 1 minuto sai o endereço, por exemplo `https://vendasempreendedores.vercel.app`.
 
 > Se você criar ou mudar variáveis **depois** do deploy, precisa publicar de novo:

@@ -81,6 +81,10 @@ export function extrairNota(texto: string): NotaLida {
       nomePendente = ''
       continue
     }
+    if ((linha.match(/\d/g) ?? []).length >= 20 && temLetras < 6) {
+      nomePendente = ''
+      continue // chave de acesso / protocolo
+    }
     const precos = [...linha.matchAll(PRECO)]
     if (!precos.length) {
       // linha só com descrição: o preço deve vir na linha de baixo (padrão NFC-e)
@@ -119,5 +123,16 @@ export function extrairNota(texto: string): NotaLida {
     if (nome.length < 2) continue
     itens.push({ nome, quantidade: Math.round(quantidade * 1000) / 1000, unidade, preco })
   }
-  return { itens, data: extrairData(texto), local }
+  return { itens: removerTotais(itens), data: extrairData(texto), local }
+}
+
+/**
+ * Proteção contra o total da nota (ou número do rodapé) virar "produto":
+ * descarta item cujo valor é igual ou maior que a soma de todos os outros.
+ */
+export function removerTotais(itens: ItemCupom[]): ItemCupom[] {
+  if (itens.length < 4) return itens
+  const maior = itens.reduce((m, i) => (i.preco > m.preco ? i : m))
+  const resto = itens.reduce((s, i) => s + i.preco, 0) - maior.preco
+  return maior.preco >= resto * 0.95 ? itens.filter((i) => i !== maior) : itens
 }

@@ -63,3 +63,13 @@ test('código de barras lido com letras e zero no meio de palavra', () => {
 1 UN X 8,90 8,90`)
   assert.deepEqual(r.itens.map((i) => i.nome), ['Chocolate Em Po', 'Oleo De Soja'])
 })
+
+test('total da nota lido como produto é descartado', () => {
+  const r = extrairNota(`CAFE EXPRESSO 1,00
+PAO FRANCES 11,99
+SUCO 4,99
+Ct: Loucos 1 Uh 19,98
+3526 1112 3453 2500 0103 6500 0040 0123 4567 8901 2345
+DOCES 2,00`)
+  assert.deepEqual(r.itens.map((i) => i.preco), [1, 11.99, 4.99, 2])
+})

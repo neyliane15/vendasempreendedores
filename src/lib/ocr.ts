@@ -61,17 +61,25 @@ async function prepararParaLeitura(arquivo: File): Promise<string> {
 
 /**
  * Leitura de nota.
- * Padrão (grátis): feita no próprio celular com Tesseract.
- * Opcional (pago): com VITE_LEITURA_IA=true usa a função "ler-cupom" com IA.
+ * 1º tenta a IA (função "ler-cupom" no Supabase, com Gemini grátis ou Claude) — entende foto torta e letra de mão.
+ * Se a IA não estiver configurada ou falhar, lê no próprio celular com Tesseract (grátis, só para foto boa).
  */
-export const leituraIA = !!supabase && import.meta.env.VITE_LEITURA_IA === 'true'
+let iaDisponivel = !!supabase
 
 export async function lerCupom(arquivo: File, progresso?: (msg: string) => void): Promise<ResultadoLeitura> {
-  if (leituraIA) {
+  if (supabase && iaDisponivel) {
     progresso?.('Lendo sua nota com inteligência artificial…')
-    const img = await comprimirImagem(arquivo)
-    const { data, error } = await supabase!.functions.invoke('ler-cupom', { body: { imagem: img.base64, mime: img.mime } })
-    if (!error) return { itens: (data?.itens ?? []) as ItemCupom[], data: null, local: '', texto: '' }
+    try {
+      const img = await comprimirImagem(arquivo, 2048)
+      const { data, error } = await supabase.functions.invoke('ler-cupom', { body: { imagem: img.base64, mime: img.mime } })
+      if (!error && data?.itens) {
+        return { itens: data.itens as ItemCupom[], data: data.data || null, local: data.local || '', texto: '' }
+      }
+      const status = (error as { context?: { status?: number } } | null)?.context?.status
+      if (status === 404 || status === 501) iaDisponivel = false // função não publicada ou sem chave: não tenta de novo
+    } catch {
+      /* segue para a leitura no aparelho */
+    }
   }
   progresso?.('Preparando a foto…')
   const imagem = await prepararParaLeitura(arquivo)
