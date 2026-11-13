@@ -13,20 +13,30 @@ export async function comprimirImagem(arquivo: File, max = 1600): Promise<{ base
   return { base64: url.split(',')[1], mime: 'image/jpeg', url }
 }
 
-/** Com Supabase: IA lê cupom fiscal, recibo ou papel escrito à mão. Sem Supabase: leitura básica no aparelho. */
+/**
+ * Leitura de nota.
+ * Padrão (grátis): feita no próprio celular com Tesseract — ótima para cupom impresso.
+ * Opcional (pago): com VITE_LEITURA_IA=true usa a função "ler-cupom" com IA, que entende letra de mão.
+ */
+export const leituraIA = !!supabase && import.meta.env.VITE_LEITURA_IA === 'true'
+
 export async function lerCupom(arquivo: File, progresso?: (msg: string) => void): Promise<ItemCupom[]> {
   const img = await comprimirImagem(arquivo)
-  if (supabase) {
+  if (leituraIA) {
     progresso?.('Lendo sua nota com inteligência artificial…')
-    const { data, error } = await supabase.functions.invoke('ler-cupom', {
+    const { data, error } = await supabase!.functions.invoke('ler-cupom', {
       body: { imagem: img.base64, mime: img.mime },
     })
-    if (error) throw new Error('Não consegui ler a foto. Tente de novo com mais luz.')
-    return (data?.itens ?? []) as ItemCupom[]
+    if (!error) return (data?.itens ?? []) as ItemCupom[]
+    // se a IA falhar, tenta a leitura grátis no aparelho
   }
   progresso?.('Lendo a foto no seu celular…')
   const { recognize } = await import('tesseract.js')
+  const base = `${location.origin}/tesseract`
   const r = await recognize(img.url, 'por', {
+    workerPath: `${base}/worker.min.js`,
+    corePath: base,
+    langPath: base,
     logger: (m: { status: string; progress: number }) =>
       m.status === 'recognizing text' && progresso?.(`Lendo a foto… ${Math.round(m.progress * 100)}%`),
   })

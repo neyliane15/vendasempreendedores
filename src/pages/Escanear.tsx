@@ -2,8 +2,7 @@ import { useRef, useState } from 'react'
 import type { Dados } from '../App'
 import { brl, num } from '../lib/calc'
 import { db } from '../lib/db'
-import { lerCupom } from '../lib/ocr'
-import { modoDemo } from '../lib/supabase'
+import { lerCupom, leituraIA } from '../lib/ocr'
 import type { ItemCupom, Unidade } from '../lib/types'
 import { Dinheiro } from '../components/Layout'
 
@@ -106,7 +105,7 @@ export default function Escanear(d: Dados) {
           • Use um lugar iluminado, sem sombra.<br />
           • Depois de salvos, os ingredientes aparecem para escolher ao cadastrar um produto.
         </p>
-        {modoDemo && <p className="sub" style={{ fontSize: 12 }}>No modo demonstração a leitura é feita no próprio celular e funciona melhor com notas impressas. Com o Supabase ligado, a leitura usa inteligência artificial e entende até letra de mão.</p>}
+        {!leituraIA && <p className="sub" style={{ fontSize: 12 }}>A leitura é feita no próprio celular, de graça. Funciona melhor com notas impressas; em papel escrito à mão, use letra de forma e caneta escura. Confira sempre os valores antes de salvar.</p>}
       </div>
     </>
   )

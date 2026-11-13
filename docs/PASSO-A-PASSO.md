@@ -3,6 +3,10 @@
 Do zero até o app instalado no celular, com todos os comandos.
 Tempo estimado: 40 a 60 minutos na primeira vez.
 
+> **Leitura de notas grátis (padrão):** a leitura é feita no próprio celular, sem custo e sem chave.
+> Funciona melhor com cupom impresso. Os passos **6, 7 e 13** são **opcionais**: só servem se um dia
+> você quiser a leitura com IA paga (que entende melhor letra de mão). Pule esses passos para ficar 100% grátis.
+
 ---
 
 ## 0. O que você precisa antes de começar
@@ -14,7 +18,7 @@ Tempo estimado: 40 a 60 minutos na primeira vez.
 | Conta no GitHub | Onde o código fica | github.com (o repositório `neyliane15/vendasempreendedores` já existe) |
 | Conta no Supabase | Banco de dados, login e função de leitura de nota | supabase.com |
 | Conta na Vercel | Colocar o site no ar | vercel.com (entre com o GitHub) |
-| Conta na Anthropic | Chave da IA que lê as notas | console.anthropic.com |
+| Conta na Anthropic (opcional, paga) | Só para a leitura de notas com IA | console.anthropic.com |
 
 Confira se o Node e o Git estão instalados (os dois comandos devem mostrar um número de versão):
 
@@ -122,7 +126,7 @@ As URLs do site (Site URL) são configuradas no passo 10, depois que a Vercel ge
 
 ---
 
-## 6. Gerar a chave da IA (Anthropic)
+## 6. (Opcional, pago) Gerar a chave da IA (Anthropic)
 
 1. Entre em **console.anthropic.com → Settings → API Keys → Create Key**.
 2. Nome: `sabor-e-lucro-ler-cupom`. Copie a chave (`sk-ant-...`). **Ela só aparece uma vez.**
@@ -133,7 +137,7 @@ Veja o passo 13 para trocar por um modelo bem mais barato.
 
 ---
 
-## 7. Publicar a função que lê as notas
+## 7. (Opcional, pago) Publicar a função que lê as notas com IA
 
 A função fica em `supabase/functions/ler-cupom/index.ts`. Ela recebe a foto do app, envia para a IA
 e devolve a lista de produtos (nome, quantidade, unidade e preço). A chave da IA fica guardada só no
@@ -216,6 +220,7 @@ Agora o app abre na tela de **Entrar**, sem a palavra "demonstração". O arquiv
 | `VITE_SUPABASE_URL` | `https://abcdefghijkl.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | sua chave pública |
 
+   - (Opcional, só se fez os passos 6 e 7) `VITE_LEITURA_IA` = `true` para ligar a leitura com IA.
 4. Clique em **Deploy**. Em cerca de 1 minuto sai o endereço, por exemplo `https://vendasempreendedores.vercel.app`.
 
 > Se você criar ou mudar variáveis **depois** do deploy, precisa publicar de novo:
@@ -265,7 +270,7 @@ O app abre em tela cheia, com o ícone vermelho e amarelo do Sabor & Lucro.
 
 ---
 
-## 13. Trocar o modelo da IA (opcional, para baratear)
+## 13. (Opcional) Trocar o modelo da IA, para baratear
 
 Arquivo `supabase/functions/ler-cupom/index.ts`. Hoje está assim:
 
@@ -317,7 +322,8 @@ Teste com notas reais, principalmente as escritas à mão. Se a leitura piorar, 
 | Site na Vercel mostra "demonstração" | Variáveis `VITE_` ausentes ou adicionadas depois do deploy | Conferir os nomes exatos no passo 9 e fazer **Redeploy** |
 | "E-mail ou senha incorretos" logo após criar a conta | E-mail ainda não confirmado | Clicar no link do e-mail ou desligar **Confirm email** (passo 5) |
 | Link do e-mail abre `localhost` | Site URL não configurada | Passo 10 |
-| "Não consegui ler a foto" | Segredo ausente, sem créditos na Anthropic ou função não publicada | `npx supabase secrets list`; conferir Billing; ver **Edge Functions → ler-cupom → Logs** |
+| Leitura grátis demora na primeira vez | O celular baixa o "dicionário" de leitura (alguns MB) só na primeira foto | Aguarde; nas próximas é mais rápido |
+| "Não consegui ler a foto" (só com IA ligada) | Segredo ausente, sem créditos na Anthropic ou função não publicada | `npx supabase secrets list`; conferir Billing; ver **Edge Functions → ler-cupom → Logs** |
 | Leitura retorna lista vazia | Foto escura, torta ou cortada | Nota esticada, com boa luz e enquadrada inteira |
 | Erro `new row violates row-level security policy` | SQL do passo 4 incompleto | Rodar o arquivo de migração inteiro de novo (ele pode ser rodado mais de uma vez) |
 | Câmera não abre | Site aberto sem `https` | Use o endereço da Vercel; no computador, `localhost` funciona |
