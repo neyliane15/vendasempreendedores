@@ -1,2 +1,4 @@
+project_id = "vendasempreendedores"
+
 [functions.ler-cupom]
 verify_jwt = true

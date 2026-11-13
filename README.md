@@ -11,6 +11,8 @@ Mini aplicativo (PWA, 100% para celular) para quem está começando a vender com
 
 Telas: [`docs/telas`](docs/telas).
 
+**Guia completo para colocar no ar: [`docs/PASSO-A-PASSO.md`](docs/PASSO-A-PASSO.md).**
+
 ## Tecnologia
 
 React + Vite + TypeScript · Supabase (Auth, Postgres com RLS, Edge Function) · Vercel.

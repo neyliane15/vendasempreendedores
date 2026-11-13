@@ -1,7 +1,7 @@
 // Supabase Edge Function: lê foto de cupom fiscal, recibo ou papel escrito à mão
 // e devolve a lista de produtos com quantidade, unidade e preço.
 // Segredo necessário:  supabase secrets set ANTHROPIC_API_KEY=...
-import Anthropic from 'npm:@anthropic-ai/sdk'
+import Anthropic from 'npm:@anthropic-ai/sdk@1.8.0'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
