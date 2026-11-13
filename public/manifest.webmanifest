@@ -1,0 +1,10 @@
+{
+  "name": "Sabor & Lucro – Preço e Vendas",
+  "short_name": "Sabor & Lucro",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8ec",
+  "theme_color": "#e63946",
+  "icons": [{ "src": "/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
